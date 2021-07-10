@@ -8,6 +8,7 @@ use solana_program::instruction::AccountMeta;
 use solana_program::program_error::ProgramError;
 use solana_program::pubkey::Pubkey;
 use std::ops::{Deref, DerefMut};
+use borsh::BorshSerialize;
 
 /// Container for any account *not* owned by the current program.
 #[derive(Clone)]
@@ -46,10 +47,23 @@ impl<'a, T: AccountDeserialize + Clone> CpiAccount<'a, T> {
     }
 }
 
+#[derive(BorshSerialize)]
+pub struct CpiAccountRaw(Pubkey);
+impl ToAccountMetas for CpiAccountRaw{
+    fn to_account_metas(&self, is_signer: Option<bool>) -> Vec<AccountMeta> {
+        vec![
+            AccountMeta::new_readonly(self.0, false),
+        ]
+    }
+}
+
 impl<'info, T> Accounts<'info> for CpiAccount<'info, T>
 where
     T: AccountDeserialize + Clone,
 {
+    type AccountsRaw = CpiAccountRaw;
+    type Instructions = ();
+
     #[inline(never)]
     fn try_accounts(
         _program_id: &Pubkey,

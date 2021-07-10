@@ -9,6 +9,7 @@ use solana_program::instruction::AccountMeta;
 use solana_program::program_error::ProgramError;
 use solana_program::pubkey::Pubkey;
 use std::ops::{Deref, DerefMut};
+use borsh::BorshSerialize;
 
 /// Boxed container for the program state singleton, used when the state
 /// is for a program not currently executing.
@@ -58,10 +59,23 @@ impl<'info, T: AccountSerialize + AccountDeserialize + Clone> CpiState<'info, T>
     }
 }
 
+#[derive(BorshSerialize)]
+pub struct CpiStateRaw(Pubkey);
+impl ToAccountMetas for CpiStateRaw{
+    fn to_account_metas(&self, is_signer: Option<bool>) -> Vec<AccountMeta> {
+        vec![
+            AccountMeta::new_readonly(self.0, false)
+        ]
+    }
+}
+
 impl<'info, T> Accounts<'info> for CpiState<'info, T>
 where
     T: AccountSerialize + AccountDeserialize + Clone,
 {
+    type AccountsRaw = CpiStateRaw;
+    type Instructions = ();
+
     #[inline(never)]
     fn try_accounts(
         _program_id: &Pubkey,

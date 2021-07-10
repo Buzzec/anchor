@@ -7,6 +7,9 @@ use solana_program::pubkey::Pubkey;
 use std::ops::Deref;
 
 impl<'info, T: Accounts<'info>> Accounts<'info> for Box<T> {
+    type AccountsRaw = T::AccountsRaw;
+    type Instructions = T::Instructions;
+
     fn try_accounts(
         program_id: &Pubkey,
         accounts: &mut &[AccountInfo<'info>],

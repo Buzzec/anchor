@@ -5,8 +5,27 @@ use solana_program::entrypoint::ProgramResult;
 use solana_program::instruction::AccountMeta;
 use solana_program::program_error::ProgramError;
 use solana_program::pubkey::Pubkey;
+use borsh::BorshSerialize;
+
+#[derive(BorshSerialize)]
+struct AccountInfoRaw{
+    key: Pubkey,
+}
+impl ToAccountMetas for AccountInfoRaw{
+    fn to_account_metas(&self, _is_signer: Option<bool>) -> Vec<AccountMeta> {
+        vec![
+            AccountMeta::new_readonly(
+                self.key,
+                false,
+            ),
+        ]
+    }
+}
 
 impl<'info> Accounts<'info> for AccountInfo<'info> {
+    type AccountsRaw = AccountInfoRaw;
+    type Instructions = ();
+
     fn try_accounts(
         _program_id: &Pubkey,
         accounts: &mut &[AccountInfo<'info>],

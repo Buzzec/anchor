@@ -66,6 +66,7 @@ pub use anchor_derive_accounts::Accounts;
 /// Borsh is the default serialization format for instructions and accounts.
 pub use borsh::{BorshDeserialize as AnchorDeserialize, BorshSerialize as AnchorSerialize};
 pub use solana_program;
+use borsh::BorshSerialize;
 
 /// A data structure of validated accounts that can be deserialized from the
 /// input to a Solana program. Implementations of this trait should perform any
@@ -74,6 +75,9 @@ pub use solana_program;
 /// cases, it's recommended to use the [`Accounts`](./derive.Accounts.html)
 /// derive macro to implement this trait.
 pub trait Accounts<'info>: ToAccountMetas + ToAccountInfos<'info> + Sized {
+    type AccountsRaw: BorshSerialize + ToAccountMetas;
+    type Instructions;
+
     /// Returns the validated accounts struct. What constitutes "valid" is
     /// program dependent. However, users of these types should never have to
     /// worry about account substitution attacks. For example, if a program

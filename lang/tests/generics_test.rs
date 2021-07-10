@@ -1,5 +1,8 @@
 #![allow(dead_code)]
 
+mod other_mod;
+
+use other_mod::*;
 use anchor_lang::prelude::borsh::maybestd::io::Write;
 use anchor_lang::prelude::*;
 use borsh::{BorshDeserialize, BorshSerialize};
@@ -40,5 +43,18 @@ impl<const N: usize> BorshSerialize for WrappedU8Array<N> {
 impl<const N: usize> BorshDeserialize for WrappedU8Array<N> {
     fn deserialize(_buf: &mut &[u8]) -> borsh::maybestd::io::Result<Self> {
         todo!()
+    }
+}
+
+#[program]
+mod test_program{
+    use super::*;
+    fn call_generic(_ctx: Context<GenericsTest<Associated<i16>, u32, 5>>) -> ProgramResult{
+        Ok(())
+    }
+
+    pub fn test_call_other_mod(ctx: Context<TestCall>, _cool_2: u8, data_in: u64) -> ProgramResult{
+        ctx.accounts.data_account.data2 = data_in;
+        Ok(())
     }
 }
